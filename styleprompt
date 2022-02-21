@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# source api so styleprompt can have access to color vars
+path="$(dirname "$0")"
+source $path/core/api
+
+# Code
+#flags="$*"
+#newPromptFlags="$(echo "$flags" | sed 's/--new//g;s/-n//g')"
+case $@ in
+-i | --interactive | "")
+  echo -en "${WHITE}What do you want to do?
+1. Make a new prompt (-n | --new)
+2. Load a saved prompt to $HOME/.bashrc (-l | --load)
+3. Revert to last prompt (-r | --revert)
+4. Delete all styleprompt prompts from .bashrc (-D | --delete-all)
+${LIBLUE}[ 1, 2, 3, or 4 ] "
+  read objective
+
+  case $objective in
+  1) source $path/core/newPrompt ;;
+  2) loadPrompt ;;
+  3) revert ;;
+  4) delete_all ;;
+  esac
+  ;;
+-n | --new) source $path/core/newPrompt ;;
+-l | --load)
+  lsStartover="214"
+  until [ "$lsStartover" != "214" ]; do loadPrompt; done
+  unset lsStartover
+  ;;
+-r | --revert) revert_prompt ;;
+-D | --delete-all) delete_all ;;
+-h | --help | '?') print_help ;;
+-v | --version) echo -e "${DARKPEACH}${version}${NC}" ;;
+-p | --pick-color)
+  pickColor "Pick a color:" color
+  echo "$color"
+  ;;
+esac

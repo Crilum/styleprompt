@@ -1,0 +1,139 @@
+#!/bin/bash
+
+# source api so styleprompt can have access to color vars
+path="$(dirname "$0")"
+source $path/core/api
+
+# Code
+
+#if [ "$1" != "" ]; then
+#case $1 in
+#        minimalist | Minimalist | min) promptType="mini" ;;
+#        inforamtional | Informational | info) promptType="info" ;;
+#esac
+#else
+
+echo -en "\n${WHITE}Which Style do you want?
+
+1. Minimalist -- Looks like this: $
+2. Infomational -- Looks like this: $USER@$HOSTNAME:$PWD $
+${LIBLUE}[ 1 or 2 ] "
+read style
+case $style in
+1)
+    promptType="mini"
+    ;;
+2)
+    promptType="info"
+    ;;
+esac
+#fi
+
+if [ "$promptType" == "info" ]; then
+    echo -en "\n${WHITE}Do you want one, two, three, or four colors in your prompt? [ 1, 2, 3, or 4 ] "
+    read promptColorsNum
+    case $promptColorsNum in
+    1)
+        pickColor "What do you want your first prompt color to be?" promptColor1
+        ;;
+    2)
+        pickColor "What do you want your first prompt color to be?" promptColor1
+        pickColor "What do you want your second prompt color to be?" promptColor2
+        ;;
+    3)
+        pickColor "What do you want your first prompt color to be?" promptColor1
+        pickColor "What do you want your second prompt color to be?" promptColor2
+        pickColor "What do you want your third prompt color to be?" promptColor3
+        ;;
+    4)
+        pickColor "What do you want your first prompt color to be?" promptColor1
+        pickColor "What do you want your second prompt color to be?" promptColor2
+        pickColor "What do you want your third prompt color to be?" promptColor3
+        pickColor "What do you want your fourth prompt color to be?" promptColor4
+        ;;
+
+    esac
+
+elif [ "$promptType" == "mini" ]; then
+    pickColor "What do you want your prompt color to be?" promptColor1
+fi
+
+pickColor "What text color do you want?" textColor
+pickColor "If you want a custom text background color, pick one of these, or hit Enter to continue without a background color:" backColor --no-force
+
+case $style in
+1)
+    prompt="${promptColor1} \$ ${textColor}"
+    ;;
+2)
+    prompt="${promptColor1}\u${textColor}@${promptColor1}${promptColor2}\h${NC}:${promptColor1}${promptColor2}${promptColor3}\w ${promptColor1}${promptColor2}${promptColor3}${promptColor4}\\$ ${textColor}"
+    ;;
+esac
+
+export prompt
+echo -en "${WHITE}This is what your prompt looks like:
+${prompt} command --flag ARG ${REVERSECOLOR}selection${NC}
+
+${WHITE}What do you want to do with it?
+1. Save to .bashrc
+2. Save to 'Saved Prompts'
+3. Try it out (run interactive shell with new prompt enabled)
+4. Discard prompt and exit
+${LIBLUE}[ 1, 2, 3, or 4 ] "
+read objectiveForPrompt
+
+case $objectiveForPrompt in
+1)
+    if [[ "$(cat $HOME/.bashrc)" =~ "PS1=\"*\" ### Added by styleprompt" ]]; then
+        echo -en "\n${WHITE}You already have a styleprompt prompt in your .bashrc. Do you still want to backup your .bashrc? ${LIBLUE}[Y/n] "
+        read backConf
+        case $backConf in
+        y | Y | yes | Yes | YES | "") cp -f "$HOME"/.bashrc "$HOME"/.bashrc.styleprompt.bak ;;
+        *) echo -e "${LIBLUE}Ok, I won't backup your .bashrc.${NC}" ;;
+        esac
+    else
+        cp -f "$HOME"/.bashrc "$HOME"/.bashrc.styleprompt.bak
+    fi
+    tee --append $HOME/.bashrc <<EOF &>/dev/null
+PS1="$prompt" ### Added by styleprompt
+EOF
+    echo -e "\n${WHITE}To get your new prompt, run \`source $HOME/.bashrc\`"
+    ;;
+
+2)
+    check=""
+    until [ "$check" == "1" ]; do
+        echo -en "\n${WHITE}What do you want to name your prompt? ${LIBLUE}"
+        read promptName
+        if [ -e $path/"Saved Prompts"/"$promptName" ]; then
+            echo -en "\n${WHITE}You already have a saved prompt called ${promptName}. Do you want to overwrite it? ${LIBLUE}[y/N] "
+            read confOverwrite
+            case $confOverwrite in
+            y | Y | yes | YES | Yes) echo "name;'${promptName}'
+type;'${promptType}'
+prompt;'${prompt}'
+stylepromptVer;'${version}'
+" >$path/"Saved Prompts"/$promptName.prompt && check="1" ;;
+            *)
+                check=""
+                echo -e "\n${WHITE}Ok, I won't overwrite ${LIBLUE}$promptName${WHITE}.${NC}"
+                ;;
+            esac
+        else
+            echo "name;'${promptName}'
+type;'${promptType}'
+prompt;'${prompt}'
+stylepromptVer;'${version}'
+" >$path/"Saved Prompts"/$promptName.prompt && check="1"
+        fi
+    done
+    ;;
+
+3)
+    rm /tmp/.bashrc.styleprompt.test
+    echo -e "PS1=\"$prompt\"\necho -e \"\n${WHITE}type 'exit' to quit the shell. Have fun!${NC}\"" >/tmp/.bashrc.styleprompt.test
+    bash --rcfile "/tmp/.bashrc.styleprompt.test"
+    ;;
+
+4) exit 0 ;;
+esac

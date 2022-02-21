@@ -1,0 +1,232 @@
+#!/bin/bash
+
+version="v0.0.9-beta"
+
+#Color Variables
+
+NC='\e[0m'
+BLACK='\e[0;30m'
+RED='\e[0;31m'
+GREEN='\e[0;32m'
+WHITE='\e[1;37m'
+ORANGE='\e[0;33m'
+BLUE='\e[0;34m'
+PURPLE='\e[0;35m'
+CYAN='\e[0;36m'
+YELLOW='\e[1;33m'
+DARKPEACH='\033[38;2;255;152;99m'
+DARKGRAY='\e[1;30m'
+
+#Lighter Colors
+LIGRAY='\e[0;37m'
+LIGREEN='\e[1;32m'
+LIRED='\e[1;31m'
+LIBLUE='\e[1;34m'
+LIPURPLE='\e[1;35m'
+LICYAN='\e[1;36m'
+
+#Background Color Variables
+
+BACKBLACK='\e[0;40m'
+BACKRED='\e[0;41m'
+BACKGREEN='\e[0;42m'
+BACKWHITE='\e[1;47m'
+BACKORANGE='\e[0;43m'
+BACKBLUE='\e[0;44m'
+BACKPURPLE='\e[0;45m'
+BACKCYAN='\e[0;46m'
+BACKYELLOW='\e[1;43m'
+
+#Lighter Colors
+BACKLIGRAY='\e[0;47m'
+BACKLIGREEN='\e[1;42m'
+BACKLIRED='\e[1;41m'
+BACKLIBLUE='\e[1;44m'
+BACKLIPURPLE='\e[1;45m'
+BACKLICYAN='\e[1;46m'
+
+#Markup Variables
+UNDERLINE='\e[4m'
+DOUBLEUNDERLINE='\e[21m'
+BOLD='\e[1m'
+BLINK='\e[5m'
+REVERSECOLOR='\e[7m'
+
+# Functions
+
+function pickColor() {
+    unset check
+    until [ "$check" == "1" ]; do
+        echo -en "${WHITE}\n${1}
+1. ${LIBLUE}Light Blue (ANSI)
+${WHITE}2. ${LICYAN}Light Cyan (ANSI)
+${WHITE}3. ${YELLOW}Yellow (ANSI)
+${WHITE}4. ${DARKPEACH}Dark Peach (RGB)
+${WHITE}5. Custom color escape code
+[ 1, 2, 3, 4, or 5 ] ${LIBLUE}"
+        read Colorvar
+        case $Colorvar in
+        1)
+            export color="${LIBLUE}"
+            check="1"
+            ;;
+        2)
+            export color="${LICYAN}"
+            check="1"
+            ;;
+        3)
+            export color="${YELLOW}"
+            check="1"
+            ;;
+        4)
+            export color="${DARKPEACH}"
+            check="1"
+            ;;
+        5)
+            check=""
+            while [ "$check" != "1" ]; do
+                echo -en "Enter your escape code: ${LIBLUE}"
+                read -r color
+                echo -en "${color}This is your Prompt color.${WHITE} Is this ok? ${LIBLUE}[Y/n] "
+                read promptColorConf
+                case $promptColorConf in
+                y | Y | Yes | yes | YES | "") check="1" ;;
+                *)
+                    check=""
+                    ;;
+                esac
+            done
+            ;;
+        "" | " " | "  ") color="" ;;
+        *)
+            unset check
+            echo -e "\n${LIRED}Error: I couldn't understand that answer, please try again."
+            ;;
+        esac
+        if [ "$3" == "--no-force" ] && [ "$color" == "" ]; then
+            check="1"
+            return 3
+        else
+            export "$2"="$color"
+        fi
+
+    done
+    unset check
+}
+
+function loadPrompt() {
+    unset lsStartover
+    unset check
+    until [ "$check" == "1" ]; do
+        echo -en "\n${WHITE}What prompt do you want to load?
+Answer 'ls' to see all prompts saved in '$path/Saved Prompts/'. ${LIBLUE}"
+        read loadWhat
+        case $loadWhat in
+        ls | LS | Ls | lS)
+            echo -e "$DARKPEACH"
+            ls "$path/Saved Prompts/"
+            lsStartover="214"
+            return
+            ;;
+        *) ;;
+        esac
+        unset lsStartover
+        if [[ "$loadWhat" =~ ".prompt" ]]; then
+            loadWhatPath="${path}/Saved Prompts/${loadWhat}"
+        else
+            loadWhatPath="${path}/Saved Prompts/${loadWhat}.prompt"
+        fi
+        if ! cat "$loadWhatPath" &>/dev/null; then
+            echo -e "\n${LIRED}Error: the specified prompt does not exist, or is unable to be opened!"
+            exit 1
+        fi
+        promptName="$(sed -e '/name/!d' -e 's/name;//' -e 's/'\''//g' "$loadWhatPath")"
+        promptType="$(sed -e '/type/!d' -e 's/type;//' -e 's/'\''//g' "$loadWhatPath")"
+        prompt="$(sed -e '/prompt/!d' -e 's/prompt;//' -e 's/'\''//g' -e '/stylepromptVer;/d' "$loadWhatPath")"
+        stylepromptVer="$(sed -e '/stylepromptVer/!d' -e 's/stylepromptVer;//' -e 's/'\''//g' "$loadWhatPath")"
+        echo -e "\n${WHITE}Prompt info:
+Name: ${LIBLUE}${promptName}${WHITE}
+Type: ${LIBLUE}${promptType}${WHITE}
+Prompt: ${LIBLUE}${prompt}${WHITE}
+  
+Created with styleprompt version: ${DARKPEACH}${stylepromptVer}${NC}"
+        echo -en "\n${WHITE}Do you want to add this prompt to your .bashrc?
+${LIBLUE}[Y/n] "
+        read confAdd
+        case $confadd in
+        y | Y | yes | Yes | YES | "")
+            if [[ "$(cat $HOME/.bashrc)" =~ "PS1=\"*\" ### Added by styleprompt" ]]; then
+                echo -en "\n${WHITE}You already have a styleprompt prompt in your .bashrc. Do you still want to backup your .bashrc? ${LIBLUE}[Y/n] "
+                read backConf
+                case $backConf in
+                y | Y | yes | Yes | YES | "") cp -f "$HOME"/.bashrc "$HOME"/.bashrc.styleprompt.bak ;;
+                *) echo -e "${LIBLUE}Ok, I won't backup your .bashrc.${NC}" ;;
+                esac
+            else
+                cp -f "$HOME"/.bashrc "$HOME"/.bashrc.styleprompt.bak
+            fi
+            tee --append $HOME/.bashrc <<EOF &>/dev/null
+PS1="${prompt}" ### Added by styleprompt
+EOF
+            echo -e "\n${WHITE}To get your new prompt, run \`source $HOME/.bashrc\`"
+            check="1"
+            ;;
+        *)
+            echo -e "\n${WHITE}Ok, I won't add this prompt to your .bashrc."
+            check="1"
+            exit 0
+            ;;
+        esac
+    done
+}
+
+function revert_prompt() {
+    if [[ ! $(cat $HOME/.bashrc) =~ "### Added by styleprompt" ]]; then
+        echo -e "\n${LIRED}Error: you don't have any styleprompts to revert!${NC}"
+        exit 1
+    else
+        rm $HOME/.bashrc.styleprompt.new &>/dev/null
+        cat $HOME/.bashrc | grep -v styleprompt >$HOME/.bashrc.styleprompt.new
+        cat $HOME/.bashrc | grep styleprompt | sed '$d' >>$HOME/.bashrc.styleprompt.new
+        mv -f $HOME/.bashrc.styleprompt.new $HOME/.bashrc
+        rm $HOME/.bashrc.styleprompt.new &>/dev/null
+    fi
+}
+
+function delete_all() {
+    if [[ ! $(cat $HOME/.bashrc) =~ "### Added by styleprompt" ]]; then
+        echo -e "\n${LIRED}Error: you don't have any styleprompts to delete!${NC}"
+        exit 1
+    else
+        echo -en "\n${WHITE}Are you sure you want to delete all styleprompt prompts form your .bashrc? ${LIBLUE}[y/N] "
+        read confDel
+        case $confDel in
+        Y | y | yes | Yes | YES)
+            rm $HOME/.bashrc.styleprompt.new &>/dev/null
+            sed -e '/PS1=".*" ### Added by styleprompt/,/###/d' $HOME/.bashrc >$HOME/.bashrc.styleprompt.new
+            rm $HOME/.bashrc &>/dev/null
+            mv $HOME/.bashrc.styleprompt.new $HOME/.bashrc
+            rm $HOME/.bashrc.styleprompt.new && exit 0
+            ;;
+        *)
+            echo -e "\n${LIBLUE}Ok, I won't delete your prompts.${NC}"
+            exit 0
+            ;;
+        esac
+    fi
+}
+
+function print_help() {
+    echo -e "${WHITE}styleprompt version ${DARKPEACH}$version ${WHITE}| created by ${LICYAN}Crilum
+${WHITE}Usage: ${LIBLUE}styleprompt${NC} ${YELLOW}[OPTION]${WHITE}
+
+${YELLOW}-i,${NC} ${YELLOW}--interactive     ${WHITE}starts an interactive session, this is the default option if no option is provided
+${YELLOW}-n,${NC} ${YELLOW}--new             ${WHITE}starts an interactive prompt creator
+${YELLOW}-l,${NC} ${YELLOW}--load            ${WHITE}loads a saved prompt to $HOME/.bashrc
+${YELLOW}-r,${NC} ${YELLOW}--revert          ${WHITE}reverts your prompt to the one used before the current one by deleting the last prompt from $HOME/.bashrc
+${YELLOW}-D,${NC} ${YELLOW}--delete-all      ${WHITE}this option will delete all your prompts created with styleprompt from $HOME/.bashrc. Be ${DARKPEACH}careful${WHITE} with it!
+${YELLOW}-p,${NC} ${YELLOW}--pick-color      ${WHITE}runs the colorPick function, and outputs the escape code for the chosen color
+${YELLOW}-v,${NC} ${YELLOW}--version         ${WHITE}prints version
+${YELLOW}-h,${NC} ${YELLOW}--help            ${WHITE}shows this help
+"
+}
