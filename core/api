@@ -87,7 +87,7 @@ ${WHITE}5. Custom color escape code
             while [ "$check" != "1" ]; do
                 echo -en "Enter your escape code: ${LIBLUE}"
                 read -r color
-                echo -en "${color}This is your Prompt color.${WHITE} Is this ok? ${LIBLUE}[Y/n] "
+                echo -en "${NC}${color}This is your Prompt color.${WHITE} Is this ok? ${LIBLUE}[Y/n] "
                 read promptColorConf
                 case $promptColorConf in
                 y | Y | Yes | yes | YES | "") check="1" ;;
@@ -198,12 +198,12 @@ function delete_all() {
         echo -e "\n${LIRED}Error: you don't have any styleprompts to delete!${NC}"
         exit 1
     else
-        echo -en "\n${WHITE}Are you sure you want to delete all styleprompt prompts form your .bashrc? ${LIBLUE}[y/N] "
+        echo -en "\n${WHITE}Are you sure you want to delete all styleprompt prompts from your .bashrc? ${LIBLUE}[y/N] "
         read confDel
         case $confDel in
         Y | y | yes | Yes | YES)
             rm $HOME/.bashrc.styleprompt.new &>/dev/null
-            sed -e '/PS1=".*" ### Added by styleprompt/,/###/d' $HOME/.bashrc >$HOME/.bashrc.styleprompt.new
+            sed -e '/PS1=".*" ### Added by styleprompt/d' $HOME/.bashrc >$HOME/.bashrc.styleprompt.new
             rm $HOME/.bashrc &>/dev/null
             mv $HOME/.bashrc.styleprompt.new $HOME/.bashrc
             rm $HOME/.bashrc.styleprompt.new && exit 0
@@ -215,6 +215,7 @@ function delete_all() {
         esac
     fi
 }
+
 
 function print_help() {
     echo -e "${WHITE}styleprompt version ${DARKPEACH}$version ${WHITE}| created by ${LICYAN}Crilum
