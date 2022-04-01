@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # source api so styleprompt can have access to color vars
-path="$(dirname "$0")"
+path="$(readlink -f "$(dirname "$0")")"
 source $path/core/api
 
 # Code

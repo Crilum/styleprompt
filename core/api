@@ -142,18 +142,19 @@ Answer 'ls' to see all prompts saved in '$path/Saved Prompts/'. ${LIBLUE}"
         fi
         promptName="$(sed -e '/name/!d' -e 's/name;//' -e 's/'\''//g' "$loadWhatPath")"
         promptType="$(sed -e '/type/!d' -e 's/type;//' -e 's/'\''//g' "$loadWhatPath")"
+        showPrompt="$(sed -e '/showPrompt/!d' -e 's/showPrompt;//' -e 's/'\''//g' -e '/stylepromptVer;/d' "$loadWhatPath")"
         prompt="$(sed -e '/prompt/!d' -e 's/prompt;//' -e 's/'\''//g' -e '/stylepromptVer;/d' "$loadWhatPath")"
         stylepromptVer="$(sed -e '/stylepromptVer/!d' -e 's/stylepromptVer;//' -e 's/'\''//g' "$loadWhatPath")"
         echo -e "\n${WHITE}Prompt info:
 Name: ${LIBLUE}${promptName}${WHITE}
 Type: ${LIBLUE}${promptType}${WHITE}
-Prompt: ${LIBLUE}${prompt}${WHITE}
+Prompt: ${LIBLUE}${showPrompt}${WHITE}
+Code: ${LIBLUE}${prompt}${WHITE}
   
 Created with styleprompt version: ${DARKPEACH}${stylepromptVer}${NC}"
-        echo -en "\n${WHITE}Do you want to add this prompt to your .bashrc?
-${LIBLUE}[Y/n] "
+        echo -en "\n${WHITE}Do you want to add this prompt to your .bashrc?${LIBLUE} [Y/n] "
         read confAdd
-        case $confadd in
+        case $confAdd in
         y | Y | yes | Yes | YES | "")
             if [[ "$(cat $HOME/.bashrc)" =~ "PS1=\"*\" ### Added by styleprompt" ]]; then
                 echo -en "\n${WHITE}You already have a styleprompt prompt in your .bashrc. Do you still want to backup your .bashrc? ${LIBLUE}[Y/n] "
@@ -171,7 +172,7 @@ EOF
             echo -e "\n${WHITE}To get your new prompt, run \`source $HOME/.bashrc\`"
             check="1"
             ;;
-        *)
+        n | N | no | NO | No | *)
             echo -e "\n${WHITE}Ok, I won't add this prompt to your .bashrc."
             check="1"
             exit 0

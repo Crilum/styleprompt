@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # source api so styleprompt can have access to color vars
-path="$(dirname "$0")"
+path="$(readlink -f "$(dirname "$0")")"
 source $path/core/api
 
 # Code
@@ -63,16 +63,18 @@ pickColor "If you want a custom text background color, pick one of these, or hit
 
 case $style in
 1)
-    prompt="${promptColor1} \$ ${textColor}"
+    prompt="${NC}${promptColor1} \\$ ${textColor}"
+    showPrompt="${NC}${promptColor1} $ ${textColor}"
     ;;
 2)
-    prompt="${promptColor1}\u${textColor}@${promptColor1}${promptColor2}\h${NC}:${promptColor1}${promptColor2}${promptColor3}\w ${promptColor1}${promptColor2}${promptColor3}${promptColor4}\\$ ${textColor}"
+    prompt="${NC}${promptColor1}\u${textColor}@${promptColor1}${promptColor2}\h${NC}:${promptColor1}${promptColor2}${promptColor3}\w ${promptColor1}${promptColor2}${promptColor3}${promptColor4}\\$ ${textColor}"
+    showPrompt="${NC}${promptColor1}${USER}${textColor}@${promptColor1}${promptColor2}$(hostname)${NC}:${promptColor1}${promptColor2}${promptColor3}$(pwd) ${promptColor1}${promptColor2}${promptColor3}${promptColor4}$ ${textColor}"
     ;;
 esac
 
 export prompt
 echo -en "${WHITE}This is what your prompt looks like:
-${prompt} command --flag ARG ${REVERSECOLOR}selection${NC}
+${showPrompt} command --flag ARG ${REVERSECOLOR}selection${NC}
 
 ${WHITE}What do you want to do with it?
 1. Save to .bashrc
@@ -105,6 +107,14 @@ EOF
     until [ "$check" == "1" ]; do
         echo -en "\n${WHITE}What do you want to name your prompt? ${LIBLUE}"
         read promptName
+        if [ ! -d $path/"Saved Prompts"/ ]; then
+            echo -en "\n${WHITE}You don't have a \"Saved Prompts\" folder, that I could find (in your \"$path/\" directory). Do you want me to create the \"$path/Saved Prompts\" directory? ${LIBLUE}[y/N] "
+            read confCreateSaveDir
+            case $confCreateSaveDir in
+                y | Y | yes | YES | Yes) mkdir $path/"Saved Prompts" || echo -e "${LIRED}newPrompt: Error: mkdir failed! Exiting...${NC}"; exit 1 ;;
+                *) echo -e "${LIBLUE}Exiting...${NC}"; exit 0 ;;
+            esac
+        fi
         if [ -e $path/"Saved Prompts"/"$promptName" ]; then
             echo -en "\n${WHITE}You already have a saved prompt called ${promptName}. Do you want to overwrite it? ${LIBLUE}[y/N] "
             read confOverwrite
@@ -112,9 +122,10 @@ EOF
             y | Y | yes | YES | Yes) echo "name;'${promptName}'
 type;'${promptType}'
 prompt;'${prompt}'
+showPrompt;'${showPrompt}'
 stylepromptVer;'${version}'
 " >$path/"Saved Prompts"/$promptName.prompt && check="1" ;;
-            *)
+            n | N | no | NO | No | *)
                 check=""
                 echo -e "\n${WHITE}Ok, I won't overwrite ${LIBLUE}$promptName${WHITE}.${NC}"
                 ;;
@@ -123,6 +134,7 @@ stylepromptVer;'${version}'
             echo "name;'${promptName}'
 type;'${promptType}'
 prompt;'${prompt}'
+showPrompt;'${showPrompt}'
 stylepromptVer;'${version}'
 " >$path/"Saved Prompts"/$promptName.prompt && check="1"
         fi
