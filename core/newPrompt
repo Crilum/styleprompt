@@ -63,18 +63,17 @@ pickColor "If you want a custom text background color, pick one of these, or hit
 
 case $style in
 1)
-    prompt="${NC}${promptColor1} \\$ ${textColor}"
+    prompt="\[${NC}${promptColor1}\] \\$ \[${textColor}\]"
     showPrompt="${NC}${promptColor1} $ ${textColor}"
     ;;
 2)
-    prompt="${NC}${promptColor1}\u${textColor}@${promptColor1}${promptColor2}\h${NC}:${promptColor1}${promptColor2}${promptColor3}\w ${promptColor1}${promptColor2}${promptColor3}${promptColor4}\\$ ${textColor}"
-    showPrompt="${NC}${promptColor1}${USER}${textColor}@${promptColor1}${promptColor2}$(hostname)${NC}:${promptColor1}${promptColor2}${promptColor3}$(pwd) ${promptColor1}${promptColor2}${promptColor3}${promptColor4}$ ${textColor}"
+    prompt="\[${NC}${promptColor1}\]\u\[${textColor}\]@\[${promptColor1}${promptColor2}\]\h\[${NC}\]:\[${promptColor1}${promptColor2}${promptColor3}\]\w \[${promptColor1}${promptColor2}${promptColor3}${promptColor4}\]\\$ \[${textColor}\]"
+    showPrompt="${NC}${promptColor1}!user${textColor}@${promptColor1}${promptColor2}!hostname${NC}:${promptColor1}${promptColor2}${promptColor3}!pwd${promptColor1}${promptColor2}${promptColor3}${promptColor4} $ ${textColor}"
     ;;
 esac
-
 export prompt
-echo -en "${WHITE}This is what your prompt looks like:
-${showPrompt} command --flag ARG ${REVERSECOLOR}selection${NC}
+echo -e "${WHITE}This is what your prompt looks like:"
+renderPrompt "$showPrompt"; echo -en "command --flag ARG ${REVERSECOLOR}selection${NC}
 
 ${WHITE}What do you want to do with it?
 1. Save to .bashrc
@@ -115,7 +114,7 @@ EOF
                 *) echo -e "${LIBLUE}Exiting...${NC}"; exit 0 ;;
             esac
         fi
-        if [ -e $path/"Saved Prompts"/"$promptName" ]; then
+        if [ -e $path/"Saved Prompts"/"$promptName" ] || [ -e $path/"Saved Prompts"/"$promptName".prompt ]; then
             echo -en "\n${WHITE}You already have a saved prompt called ${promptName}. Do you want to overwrite it? ${LIBLUE}[y/N] "
             read confOverwrite
             case $confOverwrite in
@@ -124,7 +123,7 @@ type;'${promptType}'
 prompt;'${prompt}'
 showPrompt;'${showPrompt}'
 stylepromptVer;'${version}'
-" >$path/"Saved Prompts"/$promptName.prompt && check="1" ;;
+" >$path/"Saved Prompts"/"$promptName".prompt && check="1" ;;
             n | N | no | NO | No | *)
                 check=""
                 echo -e "\n${WHITE}Ok, I won't overwrite ${LIBLUE}$promptName${WHITE}.${NC}"
@@ -136,7 +135,7 @@ type;'${promptType}'
 prompt;'${prompt}'
 showPrompt;'${showPrompt}'
 stylepromptVer;'${version}'
-" >$path/"Saved Prompts"/$promptName.prompt && check="1"
+" >$path/"Saved Prompts"/"$promptName".prompt && check="1"
         fi
     done
     ;;

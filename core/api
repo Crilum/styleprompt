@@ -114,6 +114,19 @@ ${WHITE}5. Custom color escape code
     unset check
 }
 
+function renderPrompt() {
+    echo $1 > /tmp/showPrompt.styleprompt.txt
+    echo $USER > /tmp/user.styleprompt.txt
+    echo $PWD > /tmp/pwd.styleprompt.txt
+    echo $HOSTNAME > /tmp/hostname.styleprompt.txt
+    user="$(cat /tmp/user.styleprompt.txt)"
+    pwd="$(cat /tmp/pwd.styleprompt.txt)"
+    hostname="$(cat /tmp/hostname.styleprompt.txt)"
+    renderedPrompt="$(sed -e "s|!user|${user}|g" -e "s|!pwd|${pwd}|g" -e "s|!hostname|${hostname}|g" /tmp/showPrompt.styleprompt.txt)"
+    echo -en $renderedPrompt
+
+}
+
 function loadPrompt() {
     unset lsStartover
     unset check
@@ -140,18 +153,18 @@ Answer 'ls' to see all prompts saved in '$path/Saved Prompts/'. ${LIBLUE}"
             echo -e "\n${LIRED}Error: the specified prompt does not exist, or is unable to be opened!"
             exit 1
         fi
-        promptName="$(sed -e '/name/!d' -e 's/name;//' -e 's/'\''//g' "$loadWhatPath")"
+        promptName="$(sed -e '/name/!d' -e '/showPrompt/d' -e 's/name;//' -e 's/'\''//g' "$loadWhatPath")"
         promptType="$(sed -e '/type/!d' -e 's/type;//' -e 's/'\''//g' "$loadWhatPath")"
         showPrompt="$(sed -e '/showPrompt/!d' -e 's/showPrompt;//' -e 's/'\''//g' -e '/stylepromptVer;/d' "$loadWhatPath")"
-        prompt="$(sed -e '/prompt/!d' -e 's/prompt;//' -e 's/'\''//g' -e '/stylepromptVer;/d' "$loadWhatPath")"
+        prompt="$(sed -e '/prompt/!d' -e '/showPrompt/d' -e 's/prompt;//' -e 's/'\''//g' -e '/stylepromptVer;/d' "$loadWhatPath")"
         stylepromptVer="$(sed -e '/stylepromptVer/!d' -e 's/stylepromptVer;//' -e 's/'\''//g' "$loadWhatPath")"
-        echo -e "\n${WHITE}Prompt info:
-Name: ${LIBLUE}${promptName}${WHITE}
-Type: ${LIBLUE}${promptType}${WHITE}
-Prompt: ${LIBLUE}${showPrompt}${WHITE}
-Code: ${LIBLUE}${prompt}${WHITE}
-  
-Created with styleprompt version: ${DARKPEACH}${stylepromptVer}${NC}"
+        echo -e "\n${WHITE}Prompt info:"
+        echo -e "Name: ${LIBLUE}${promptName}${WHITE}"
+        echo -e "Type: ${LIBLUE}${promptType}${WHITE}"
+        echo -en "Prompt: "; renderPrompt "${showPrompt}"
+        echo -en "\n${WHITE}Code: ${LIBLUE}"; echo -n "${prompt}"; echo -e "${WHITE}"
+        echo
+        echo -e "Created with styleprompt version: ${DARKPEACH}${stylepromptVer}${NC}"
         echo -en "\n${WHITE}Do you want to add this prompt to your .bashrc?${LIBLUE} [Y/n] "
         read confAdd
         case $confAdd in
