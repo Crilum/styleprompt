@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="v0.0.9-beta"
+version="v0.1.0-beta"
 
 #Color Variables
 
