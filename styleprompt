@@ -39,6 +39,6 @@ ${LIBLUE}[ 1, 2, 3, or 4 ] "
 -v | --version) echo -e "${DARKPEACH}${version}${NC}" ;;
 -p | --pick-color)
   pickColor "Pick a color:" color
-  echo "$color"
+  echo -en "${WHITE}Escape Code: ${color}"; echo "$color"
   ;;
 esac

@@ -58,12 +58,21 @@ function pickColor() {
     unset check
     until [ "$check" == "1" ]; do
         echo -en "${WHITE}\n${1}
-1. ${LIBLUE}Light Blue (ANSI)
-${WHITE}2. ${LICYAN}Light Cyan (ANSI)
-${WHITE}3. ${YELLOW}Yellow (ANSI)
-${WHITE}4. ${DARKPEACH}Dark Peach (RGB)
-${WHITE}5. Custom color escape code
-[ 1, 2, 3, 4, or 5 ] ${LIBLUE}"
+1.  ${LIBLUE}Light Blue (ANSI)
+${WHITE}2.  ${BLUE}Blue (ANSI)
+${WHITE}3.  ${LICYAN}Light Cyan (ANSI)
+${WHITE}4.  ${CYAN}Cyan (ANSI)
+${WHITE}5.  ${LIGREEN}Light Green (ANSI)
+${WHITE}6.  ${GREEN}Green (ANSI)
+${WHITE}7.  ${YELLOW}Yellow (ANSI)
+${WHITE}8.  ${ORANGE}Orange/Brown (ANSI)
+${WHITE}9.  ${DARKPEACH}Peachy Orange (RGB)
+${WHITE}10. ${LIRED}Light Red (ANSI)
+${WHITE}11. ${RED}Red (ANSI)
+${WHITE}12. ${LIPURPLE}Light Purple (ANSI)
+${WHITE}13. ${PURPLE}Purple (ANSI)
+${WHITE}14. Custom color escape code
+${LIBLUE}[ 1 — 14 ] "
         read Colorvar
         case $Colorvar in
         1)
@@ -71,18 +80,54 @@ ${WHITE}5. Custom color escape code
             check="1"
             ;;
         2)
-            export color="${LICYAN}"
+            export color="${BLUE}"
             check="1"
             ;;
         3)
-            export color="${YELLOW}"
+            export color="${LICYAN}"
             check="1"
             ;;
         4)
-            export color="${DARKPEACH}"
+            export color="${CYAN}"
             check="1"
             ;;
         5)
+            export color="${LIGREEN}"
+            check="1"
+            ;;
+        6)
+            export color="${GREEN}"
+            check="1"
+            ;;
+        7)
+            export color="${YELLOW}"
+            check="1"
+            ;;
+        8)
+            export color="${ORANGE}"
+            check="1"
+            ;;
+        9)
+            export color="${DARKPEACH}"
+            check="1"
+            ;;
+        10)
+            export color="${LIRED}"
+            check="1"
+            ;;
+        11)
+            export color="${RED}"
+            check="1"
+            ;;
+        12)
+            export color="${LIPURPLE}"
+            check="1"
+            ;;
+        13)
+            export color="${PURPLE}"
+            check="1"
+            ;;
+        14)
             check=""
             while [ "$check" != "1" ]; do
                 echo -en "Enter your escape code: ${LIBLUE}"
