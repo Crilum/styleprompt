@@ -1,12 +1,15 @@
 #!/bin/bash
 
-# source api so styleprompt can have access to color vars
+# source api so styleprompt can have access to color vars and funcs
 path="$(readlink -f "$(dirname "$0")")"
 source $path/core/api
 
 # Code
-#flags="$*"
-#newPromptFlags="$(echo "$flags" | sed 's/--new//g;s/-n//g')"
+
+if [ ! -d $path/"Saved Prompts" ]; then
+mkdir $path/"Saved Prompts"
+fi
+
 case $@ in
 -i | --interactive | "")
   echo -en "${WHITE}What do you want to do?

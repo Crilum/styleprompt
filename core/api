@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="v0.0.9-beta"
+version="v0.1.0-beta"
 
 #Color Variables
 
@@ -238,7 +238,7 @@ ${WHITE}Usage: ${LIBLUE}styleprompt${NC} ${YELLOW}[OPTION]${WHITE}
 ${YELLOW}-i,${NC} ${YELLOW}--interactive     ${WHITE}starts an interactive session, this is the default option if no option is provided
 ${YELLOW}-n,${NC} ${YELLOW}--new             ${WHITE}starts an interactive prompt creator
 ${YELLOW}-l,${NC} ${YELLOW}--load            ${WHITE}loads a saved prompt to $HOME/.bashrc
-${YELLOW}-r,${NC} ${YELLOW}--revert          ${WHITE}reverts your prompt to the one used before the current one by deleting the last prompt from $HOME/.bashrc
+${YELLOW}-r,${NC} ${YELLOW}--revert          ${WHITE}reverts your prompt to the one used before the current one by deleting the last styleprompt prompt from $HOME/.bashrc
 ${YELLOW}-D,${NC} ${YELLOW}--delete-all      ${WHITE}this option will delete all your prompts created with styleprompt from $HOME/.bashrc. Be ${DARKPEACH}careful${WHITE} with it!
 ${YELLOW}-p,${NC} ${YELLOW}--pick-color      ${WHITE}runs the colorPick function, and outputs the escape code for the chosen color
 ${YELLOW}-v,${NC} ${YELLOW}--version         ${WHITE}prints version
